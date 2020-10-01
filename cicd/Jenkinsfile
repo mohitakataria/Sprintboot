@@ -4,8 +4,8 @@ node{
     }
     stage('code build & test'){
         //sh 'mvn clean package'
-      def mavenHome = tool name: 'maven-3' , type: 'maven'
-      def mavenCMD = "${mavenHome}/bin/mvn"
+      def mavenHome = cicd name: 'maven-3' , type: 'maven'
+      def mavenCMD = "${mavenHome}/mvn"
       sh "${mavenCMD} clean package"
     }
     stage('docker build'){
