@@ -1,0 +1,28 @@
+node{
+    def docker=tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
+    def dockerCMD = "$docker/bin/docker"
+
+    stage('Checkout GIT Project'){
+        git credentialsId: 'git credentials', url: 'https://github.com/mohitakataria/Sprintboot.git'
+    }
+
+    stage('build and Test'){
+       def MAVEN_HOME = tool name: 'maven-3', type: 'maven'
+       sh "${MAVEN_HOME}/bin/mvn clean package"
+    }
+
+    stage('Build docker image'){
+        sh "${dockerCMD} build -t mohitakataria/sprintboot:4 ."
+    }
+
+    stage('Push docker image'){
+        withCredentials([string(credentialsId: 'dockerPwd', variable: 'dockerPassword')]) {
+           sh "${dockerCMD} login -u panikumar1001 -p ${dockerPassword}"
+        }
+        sh "${dockerCMD} push mohitakataria/sprintboot:4"
+    }
+
+    stage('Run docker image'){
+        sh "${dockerCMD} run -p 8082:8080 -d mohitakataria/sprintboot:4"
+    }
+}
