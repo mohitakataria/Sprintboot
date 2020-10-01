@@ -4,9 +4,9 @@ node{
     }
     stage('code build & test'){
         //sh 'mvn clean package'
-      def mavenHome = cicd name: 'maven-3' , type: 'maven'
-      def mavenCMD = "${mavenHome}/mvn"
-      sh "${mavenCMD} clean package"
+      //def mavenHome = cicd name: 'maven-3' , type: 'maven'
+     // def mavenCMD = "$cicd/mvn"
+      sh "mvn clean package"
     }
     stage('docker build'){
         sh 'sudo docker build -t mohitakataria/sprintboot:4 .'
