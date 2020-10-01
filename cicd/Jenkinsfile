@@ -1,28 +1,24 @@
 node{
-    def docker=tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
-    def dockerCMD = "$docker/bin/docker"
-
-    stage('Checkout GIT Project'){
-        git credentialsId: 'git credentials', url: 'https://github.com/mohitakataria/Sprintboot.git'
+    stage('git checkout'){
+        git 'https://github.com/mohitakataria/Sprintboot.git'
     }
-
-    stage('build and Test'){
-       def MAVEN_HOME = tool name: 'maven-3', type: 'maven'
-       sh "${MAVEN_HOME}/bin/mvn clean package"
+    stage('code build & test'){
+        //sh 'mvn clean package'
+      def mavenHome = tool name: 'maven-3' , type: 'maven'
+      def mavenCMD = "${mavenHome}/bin/mvn"
+      sh "${mavenCMD} clean package"
     }
-
-    stage('Build docker image'){
-        sh "${dockerCMD} build -t mohitakataria/sprintboot:4 ."
+    stage('docker build'){
+        sh 'sudo docker build -t mohitakataria/sprintboot:4 .'
     }
-
-    stage('Push docker image'){
-        withCredentials([string(credentialsId: 'dockerPwd', variable: 'dockerPassword')]) {
-           sh "${dockerCMD} login -u panikumar1001 -p ${dockerPassword}"
+    stage('docker push'){
+        withCredentials([string(credentialsId: 'DocID', variable: 'dockerPWD')]){
+        // some block
+        sh "sudo docker login -u mohitakataria -p ${dockerPWD}"
         }
-        sh "${dockerCMD} push mohitakataria/sprintboot:4"
+        sh 'sudo docker push mohitakataria/sprintboot:4'
     }
-
-    stage('Run docker image'){
-        sh "${dockerCMD} run -p 8082:8080 -d mohitakataria/sprintboot:4"
+    stage('docker run'){
+        sh 'sudo docker run -p 8800:8080 -d mohitakataria/sprintboot:4'
     }
 }
