@@ -1,24 +1,22 @@
 node{
-    stage('git checkout'){
+   stage('git checkout'){
         git 'https://github.com/mohitakataria/Sprintboot.git'
     }
     stage('code build & test'){
-        //sh 'mvn clean package'
-      //def mavenHome = cicd name: 'maven-3' , type: 'maven'
-     // def mavenCMD = "$cicd/mvn"
-      sh "mvn clean package"
+        def mavenHome = tool name: 'maven-3' , type: 'maven'
+        def mavenCMD = "${mavenHome}/bin/mvn"
+        sh "${mavenCMD} clean package"
     }
     stage('docker build'){
-        sh 'sudo docker build -t mohitakataria/sprintboot:4 .'
+        sh "docker build -t mohitakataria/springboot01:5.0.0 ."
+        withCredentials([usernamePassword(credentialsId: 'mohidoc', passwordVariable: 'dockerpwd', usernameVariable: 'dockeruser')]) { 
+            sh "docker login -u ${dockeruser} -p ${dockerpwd}"
+        }
     }
     stage('docker push'){
-        withCredentials([string(credentialsId: 'DocID', variable: 'dockerPWD')]){
-        // some block
-        sh "sudo docker login -u mohitakataria -p ${dockerPWD}"
-        }
-        sh 'sudo docker push mohitakataria/sprintboot:4'
+        sh 'docker push mohitakataria/springboot01:5.0.0'
     }
     stage('docker run'){
-        sh 'sudo docker run -p 8800:8080 -d mohitakataria/sprintboot:4'
+        sh 'docker run -p 8888:8080 -d mohitakataria/springboot01:5.0.0'
     }
 }
